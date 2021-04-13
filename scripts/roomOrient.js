@@ -1,0 +1,1 @@
+AFRAME.registerComponent("resetorientation",{init:function(){var e=this.el;e.addEventListener("resetorientation",function(){var t=e.querySelector("[camera]").getAttribute("rotation").y;e.setAttribute("rotation",{y:-1*t})})}});

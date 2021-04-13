@@ -1,0 +1,847 @@
+<!doctype html>
+<html>
+<head>
+    <script src="scripts/aframe.min.js"></script>
+
+    <script src="scripts/roomOrient.js"></script>
+    <script src="scripts/chromakey.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="scripts/noiseShader.js"></script>
+    <script src="https://hammerjs.github.io/dist/hammer.js"></script>
+    <meta charset="utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Urho spheres</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+
+<!--script src="scripts/gameregcomp.js"></script-->
+
+<style>
+ html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    /*background-image: url('content/bgCloseUp.png');*/
+    background-color: #D8C644;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+body {
+    touch-action: manipulation;
+}
+
+#topMenu {
+  position: relative;
+  display: grid;
+  grid: auto / 33vw 33vw 33vw;
+  background-color: #B96936;
+  padding: 0.1vh;
+  /*text-align: center;*/
+  z-index: 3;
+  border-style: solid;
+  border-color: #2d3330;
+}
+
+#yourPoints{
+opacity:1;
+z-index: 2;
+padding: 30% 0;
+display: inline-block;
+vertical-align: middle;
+/*line-height: 500px; /* <-- adjust this */
+font-style: normal;
+font-weight: bold;
+color: white;
+font-size: 40px;
+-webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+-webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+}
+
+#hint {
+display: block;
+opacity:1;
+/*position: fixed;*/
+/*z-index: 2;
+top: 5%;
+left: 5%;*/
+z-index: 3;
+font-style: normal;
+font-size: 3vh;
+text-align: center;
+/*font-family: Helvetica, Arial, sans-serif;*/
+font-family: 'Bangers', cursive, Arial, bold;
+/*border-style: solid;
+background-color: #2d3330;
+border-color: #2d3330;*/
+color:#2d3330;
+-webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+}
+
+#Room {
+display: none;
+opacity:1;
+/*position: fixed;*/
+/*z-index: 2;
+top: 5%;
+left: 5%;*/
+z-index: 3;
+font-style: normal;
+font-size: 3vh;
+text-align: center;
+font-family: Music;
+/*border-style: solid;
+background-color: #2d3330;
+border-color: #2d3330;*/
+color:#2d3330;
+-webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+}
+
+#item1 {
+display: none;
+opacity:1;
+/*position: fixed;*/
+/*z-index: 2;
+top: 5%;
+left: 5%;*/
+margin-top: 1.5vh;
+margin-left: 20vw;
+width: 6vh;
+height: 6vh;
+z-index: 3;;
+-webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+}
+
+#myProgress {
+display: none;
+position: fixed;
+width: 6vw;
+height: 24vw;
+left: 5%;
+bottom: 10%;
+/*background-color: grey;*/
+background: url('content/1a2.png');
+background-size: 100%;
+background-repeat: no-repeat;
+z-index: 3;
+transform: rotateZ(180deg);
+-webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+}
+
+#myBar {
+width: 95%;
+height: 95%;
+margin-left: 2.5%;
+margin-right: -2.5%;
+z-index: 3;
+opacity: 100%;
+background-color: #00ff00;
+/*transform: rotateY(180deg);*/
+-webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+}
+
+#myCover {
+/*display: block;*/
+/*position: fixed;*/
+width: 6vw;
+height: 24vw;
+left: 5%;
+top: 60%;
+z-index: 4;
+/*background-color: grey;*/
+background: url('content/1b.png');
+background-size: 100%;
+background-repeat: no-repeat;
+/*transform: rotateZ(180deg);*/
+-webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+}
+
+#speechBubble {
+  display: none;
+  position: relative;
+  text-align: center;
+  z-index: 3;
+  top: 15%;
+  left: 35%;
+  transform: translate(-50%, -50%);
+  width: 150vh;
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+}
+
+.text-block {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  font-size: 3vh;
+  font-family: 'Bangers', cursive, Arial, bold;
+  transform: translate(-50%, -50%);
+  color: black;
+  padding-left: 20px;
+  padding-right: 20px;
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+}
+
+#bubble {
+  transform: rotateY(180deg);
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+-moz-user-select: none;     /* Firefox all */
+-ms-user-select: none;      /* IE 10+ */
+user-select: none;
+}
+
+@media screen and (max-width: 750px){
+  #speechBubble{
+    width: 110vh;
+    top: 10%;
+    left: 25%;
+  }
+  .text-block {
+  font-size: 2.2vh;
+}
+/*#myProgress {
+
+}*/
+}
+
+@font-face { font-family: Music; src: url('fonts/Rhythms-PC/RHYTHMS_.TTF'); }
+
+
+
+</style>
+
+</head>
+
+<body>
+
+  <div id="topMenu" class="grid-containter">
+    <p id="empty"></p>
+    <p id="hint"></p>
+    <p id="Room"></p>
+    <img id="item1" src="content/loveOff.png">
+  </div>
+
+  <div id="speechBubble">
+    <img id="bubble" src="content/bubble2.png" style="width:25%;">
+    <div class="text-block">
+    <p id="bubbleText"></p>
+  </div>
+</div>
+
+<div id="myProgress">
+  <div id="myBar">
+    <div id="myCover"></div>
+  </div>
+</div>
+   
+ <a-scene id="as" vr-mode-ui="enabled: false" loading-screen="enabled: false">
+
+        <a-assets>
+                <img id="stillView" preload="auto" src="SelectedSphereImages/V2n.jpg" crossOrigin="anonymous" playsinline webkit-playsinline>
+                <!--img id="stillView_a" preload="auto" src="SelectedSphereImages/silouttes.png" crossOrigin="anonymous" playsinline webkit-playsinline-->
+                <!--img id="stillView_b" preload="auto" src="SelectedSphereImages/V2_b.png" crossOrigin="anonymous" playsinline webkit-playsinline-->
+                <img id="stillView2" preload="auto" src="SelectedSphereImages/V2_2n.jpg" crossOrigin="anonymous" playsinline webkit-playsinline>
+                <img id="stillView3" preload="auto" src="SelectedSphereImages/V2_4n.jpg" crossOrigin="anonymous" playsinline webkit-playsinline>
+                <img id="stillView4" preload="auto" src="SelectedSphereImages/V3n.jpg" crossOrigin="anonymous" playsinline webkit-playsinline>
+                <img id="dqueen" preload="auto" src="content/ladyFar2.png" crossOrigin="anonymous" playsinline webkit-playsinline>
+                <video id="guardVideo" src="content/guardStop.mp4" preload="auto" muted crossOrigin="anonymous" playsinline webkit-playsinline></video>
+                <video id="guardVideo2" src="content/guardLetter.mp4" preload="auto" muted crossOrigin="anonymous" playsinline webkit-playsinline></video>
+                <video id="dancerVideo" src="content/dancer_1.mp4" preload="auto" muted crossOrigin="anonymous" playsinline webkit-playsinline></video>
+                <video id="dancerVideo2" src="content/dancer_fail.mp4" preload="auto" muted crossOrigin="anonymous" playsinline webkit-playsinline></video>
+                <video id="dancerVideo3" src="content/dancerLetter.mp4" preload="auto" muted crossOrigin="anonymous" playsinline webkit-playsinline></video>
+                <audio id="background" src="audio/cocktail_mixdown.mp3" preload="auto" loop="true" crossOrigin="anonymous" playsinline webkit-playsinline></audio>
+                <audio id="background2" src="audio/Urho_crowd_only_DQ.mp3" preload="auto" loop="true" crossOrigin="anonymous" playsinline webkit-playsinline></audio>
+                <audio id="happyfeet" src="audio/happyfeet.mp3" preload="auto" loop="false" crossOrigin="anonymous" playsinline webkit-playsinline></audio>
+                <audio id="sleep" src="audio/sleep1.mp3" preload="auto" loop="true" crossOrigin="anonymous" playsinline webkit-playsinline></audio>
+              </a-assets>
+
+           <!-- HOTSPOTS-->
+           <!--Dancing queen 2_2-->
+           <a-circle class="not-touchable" id="hotspot2_2" material="color: yellow" alpha-test="0.7" position="6 3.7 -8.2" scale="0.7 0.7" rotation="0 -40 0" opacity="0.7" visible="false"></a-circle>
+           <a-plane id="dancingQueen" src="#dqueen" position="6 -2 -8.5" scale="5 10" rotation="0 -40 0" opacity="0.9" visible="false"></a-plane>
+           <!--a-circle class="touchable" id="hotspot2_2_1" material="color: red" alpha-test="0.7" position="-3 0 1.8" scale="0.5 0.5 0.5" rotation="0 130 0" opacity="0.8" visible="true"></a-circle-->
+           <!--Upstarts 2_4-->
+           <a-circle class="not-touchable" id="hotspot2_4" material="src: content/nappi-11.png" position="-1.4 2 5" scale="0.5 0.5 0.5" rotation="0 160 0" opacity="0.8" alpha-test="0.7" visible="false"></a-circle>
+           <a-circle class="not-touchable" id="hotspot2_4_1" material="color: yellow" position="-2.8 3.5 5" scale="0.5 0.5 0.5" rotation="0 160 0" opacity="0.7" alpha-test="0.7" visible="false"></a-circle>
+           <a-plane id="guard" position="-3 -2 6" scale="5 10" rotation="0 160 0" material="src: content/turvamies_1.png; transparent: true" opacity="1" visible="false"></a-plane>
+
+           <a-circle class="not-touchable" id="hotspot3_1" material="color: red" alpha-test="0.7" position="2 1.8 4" scale="0.5 0.5" rotation="0 210 0" opacity="0.7" visible="false"></a-circle>
+           <a-plane id="uFar" position="3 -7 4" scale="8 16" rotation="-20 210 0" material="src: content/urhoFar.png; transparent: true" opacity="1" visible="false"></a-plane>
+           <a-plane id="zzz" material="src: content/zz2.png"  position="1.5 1 4" scale="0.5 0.5" rotation="0 210 0" opacity="0.8" alpha-test="0.7" visible="false"
+           animation="property: position; from: 1.5 1 4; to: 1.5 10 20; dur: 5000; startEvents: zpos; pauseEvents: zsop; loop: true;"></a-plane>
+           <!--some png??-->
+           <!--a-box class="not-touchable" id="x2_1" position="-7 0 0" scale="2 2 2" rotation="0 0 45" color="green" opacity="0.3" visible="false"></a-box-->
+           <!--Bald guy-->
+           <!--a-circle id="a2t_a" material="color: red" position="-7 0 0" scale="1 1 1" rotation="0 90 0" opacity="0.8" alpha-test="0.7" visible="true"></a-circle>
+           <a-box class="not-touchable" id="x2_2" position="7 0 1" scale="2 2 2" rotation="0 0 45" color="green" opacity="0.3" visible="false"></a-box>
+           <a-plane id="zzz" material="src: content/visuals/zz2.png"  position="7.8 1.5 1.5" scale="0.7 0.7" rotation="0 -90 0" opacity=a"0.8" alpha-test="0.7" visible="false"
+           animation="property: position; from: 7.8 1.5 1.5; to: 7.8 8 4; dur: 5000; easing: linear; startEvents: zpos; pauseEvents: zsop; loop: true;"></a-plane>
+           <a-plane id="zzz2" material="src: content/visuals/zz2.png"  position="7.8 3.5 2" scale="0.8 0.8" rotation="0 -90 0" opacity="0.8" alpha-test="0.7" visible="false"
+           animation="property: position; from: 7.8 2.5 2; to: 7.8 10 5; dur: 5000; easing: linear; startEvents: zpos; pauseEvents: zsop; loop: true;"></a-plane>
+           <a-sound src="#sleep" position="7 0 1"></a-sound>
+           <a-plane id="soundTrig" class="no-link" scale="15 10" position="5 1 1" rotation="0 270 0" visible="false"></a-plane-->
+         
+         <!-- Crowd planes-->
+         <!--a-plane id="cs1" position="5 0 7" scale="6 6" rotation="0 160 0" material="src: content/cs1.png; transparent: true" opacity="1" visible="true"
+         animation="property: rotation; from: 0 160 0; to: 0 160 10; dur: 4000; easing: linear; dir: alternate; autoplay: true; loop: true;"></a-plane>
+         <a-plane id="cs3" position="10 0.5 5" scale="4 4" rotation="0 -90 0" material="src: content/cs3.png; transparent: true" opacity="1" visible="true"
+         animation="property: rotation; from: 0 -90 0; to: 0 -45 10; dur: 4000; easing: linear; dir: alternate; autoplay: true; loop: true;"></a-plane-->
+        
+         <!--ROOM-->   
+            <a-sky id="imgSphere" src="#stillView" rotation="0 0 0" visible="false" opacity="1"></a-sky>
+            <!--a-sky id="imgSphere_a" material="src: #stillView_a; transparent: true" rotation="0 0 0" visible="true" opacity="1"></a-sky>
+            <a-entity animation="property: rotation; from: 0 0 0; to: 0 5 0; dur: 4000; easing: linear; dir: alternate; autoplay: true; loop: true;">
+              <a-sky id="imgSphere_b" material="src: #stillView_a; transparent: true" rotation="0 0 0" visible="true" opacity="1"></a-sky>
+            </a-entity-->
+
+        
+     
+        <!-- CAMERA-->
+            <a-entity look id="cameraWrapper" rotation="0 0 0" resetorientation>
+                <a-camera look-controls mouse-cursor>
+                <a-cursor
+                  id="cursor"
+                  animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+                  animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+                  event-set__mouseenter="_event: mouseenter; color: springgreen"
+                  event-set__mouseleave="_event: mouseleave; color: black"
+                  visible="false"
+                  raycaster="objects: .link" foo>
+                </a-cursor>
+                <a-entity cursor="rayOrigin: mouse" raycaster="objects: .touchable"></a-entity>
+                <!--a-image id="next" class="touchable" visible="true" material="src: touch.png; transparent: true" position="0 5 -7" alpha-test="0.7" scale="1 1 1" rotation="0 0 0"></a-image-->
+                <!--a-image id="mechBut" class="touchable" visible="true" material="src: touch.png; transparent: true" position="0 5 -7" alpha-test="0.7" scale="1 1 1" rotation="0 0 0"></a-image-->
+                <!-- Queen close up group -->
+                <a-video id="queenVideo" width="1.2" height="1.2" material="shader: chromakey; color: 0.1 0.9 0.2; src: #dancerVideo" position="0 -0.25 -1" visible="false"></a-video>
+                <a-video id="queenVideo2" width="1.2" height="1.2" material="shader: chromakey; color: 0.1 0.9 0.2; src: #dancerVideo2" position="0 -0.25 -1" visible="false"></a-video>
+                <a-video id="queenVideo3" width="1.2" height="1.2" material="shader: chromakey; color: 0.1 0.9 0.2; src: #dancerVideo3" position="0 -0.25 -1" visible="false"></a-video>
+                <a-entity id="danceAnim" animation="property: position; from: 0 0 0; to: 0 -0.05 0; dur: 2000; dir: alternate; startEvents: pos; pauseEvents: pos2; loop: true"
+                animation__2="property: rotation; from: 0 0 0; to: 0 0 5; dur: 1000; dir: alternate; startEvents: rot; pauseEvents: rot2; loop: true">
+                <a-plane id="queenCloseUp" position="0 -0.25 -1" scale="1.3 1.3" rotation="0 0 -2.5" direction material="src: content/lady1.png; transparent: true" opacity="1" visible="false" 
+                animation="property: opacity; from: 0; to: 1; dur: 1000; easing: linear; startEvents: opa; loop: false;"
+                animation__2="property: opacity; from: 1; to: 0; dur: 1000; easing: linear; startEvents: apo; loop: false;"></a-plane>
+                <a-plane id="queenCloseUp2" position="0 -0.25 -1" scale="1.3 1.3" rotation="0 0 -2.5" material="src: content/lady2.png; transparent: true" opacity="0" visible="false" 
+                animation="property: opacity; from: 0; to: 1; dur: 1000; easing: linear; startEvents: opa; loop: false;"
+                animation__2="property: opacity; from: 1; to: 0; dur: 1000; easing: linear; startEvents: apo; loop: false;"></a-plane>
+                <a-plane id="queenCloseUp3" position="0 -0.25 -1" scale="1.3 1.3" rotation="0 0 -2.5" material="src: content/lady3.png; transparent: true" opacity="0" visible="false" 
+                animation="property: opacity; from: 0; to: 1; dur: 1000; easing: linear; startEvents: opa; loop: false;"
+                animation__2="property: opacity; from: 1; to: 0; dur: 1000; easing: linear; startEvents: apo; loop: false;"></a-plane>
+              </a-entity>
+                <!-- Game mechanic button -->
+                <a-plane id="mechButton" class="not-touchable" position="0 -0.7 -1" scale="0.3 0.3" material="src: touch.png; transparent: true" visible="false"></a-plane>
+                <!-- Guard close up group -->
+                <!--a-plane id="bubbleGuard" position="0 0.5 -1" scale="0.3 0.3" material="src: content/bubble.png; transparent: true" visible="true"></a-plane-->
+                <a-video id="guardCloseUp" width="1.2" height="1.2" material="shader: chromakey; color: 0.1 0.9 0.2; src: #guardVideo" position="0 -0.25 -1" visible="false"></a-video>
+                <a-video id="guardCloseUp2" width="1.2" height="1.2" material="shader: chromakey; color: 0.1 0.9 0.2; src: #guardVideo2" position="0 -0.25 -1" visible="false"></a-video>
+                <a-plane id="startImg" class="touchable" position="0 0 -1" scale="0.9 0.9" material="src: content/start.png; transparent: true" visible="true"></a-plane>
+                <a-plane id="endImg" class="not-touchable" position="0 0 -1" scale="0.9 0.9" material="src: content/end.png; transparent: true" visible="false"></a-plane>
+              </a-camera>
+            </a-entity>
+
+    </a-scene>
+
+    <script>
+        view1 = document.querySelector("#stillView");
+        view2 = document.querySelector("#stillView2");
+        view3 = document.querySelector("#stillView3");
+        view4 = document.querySelector("#stillView4");
+        sp = document.querySelector("#imgSphere");
+        hs2_2 = document.querySelector("#hotspot2_2");
+        hs2_4 = document.querySelector("#hotspot2_4");
+        hs2_4_1 = document.querySelector("#hotspot2_4_1");
+        layer2_2 = document.querySelector("#dancingQueen");
+        layer2_2_1 = document.querySelector("#dancingQueen_1"); //off??
+        layer2_4_1 = document.querySelector("#guard");
+        mBut = document.querySelector("#mechButton"); 
+        meterBar = document.querySelector("#myBar");
+        meterBase = document.querySelector("#myProgress");
+        q1 = document.querySelector("#queenCloseUp");
+        q2 = document.querySelector("#queenCloseUp2");
+        q3 = document.querySelector("#queenCloseUp3");
+        queenVid = document.querySelector("#dancerVideo");
+        queenVid2 = document.querySelector("#dancerVideo2");
+        queenVid3 = document.querySelector("#dancerVideo3");
+        queenLayer = document.querySelector("#queenVideo");
+        queenLayer2 = document.querySelector("#queenVideo2");
+        queenLayer3 = document.querySelector("#queenVideo3");
+        bg = document.querySelector("#background");
+        slp = document.querySelector("#sleep");
+        bg2 = document.querySelector("#background2");
+        happyf = document.querySelector("#happyfeet");
+        da = document.querySelector("#danceAnim");
+        timeB = 75;
+        nx = document.querySelector("#next");
+        rm = document.getElementById("Room");
+        ht = document.getElementById("hint");
+        sbubble = document.getElementById("speechBubble");
+        btext = document.getElementById("bubbleText");
+        key2_4 = false;
+        a = 0;
+        danceScene = false;
+        var touchElement = document.getElementById('as');
+        var mc = new Hammer.Manager(touchElement);
+        mc.add( new Hammer.Swipe({ direction: Hammer.DIRECTION_ALL, velocity: 0.1 }) );
+        textArea = "eheheehehehe";
+        rm.innerHTML = textArea;
+        ht.innerHTML = "Start Demo";
+        /*document.body.addEventListener("click", function (evt) {
+        console.log("Hit");
+        });*/
+        // To check that is vibration API supported 
+        if (window.navigator && window.navigator.vibrate) {
+          // Vibration supported
+          vib = true;
+        } else {
+        // Vibration not supported
+        vib = false;
+        }
+        
+          document.querySelector("#startImg").addEventListener('mousedown', function (e) {
+          bg.play();
+          hs2_4.setAttribute('visible', true),
+          layer2_2.setAttribute('visible', true),
+          hs2_2.setAttribute('visible', true);
+          if(document.querySelector("#hotspot2_4").matches('.not-touchable')) { 
+          $("#hotspot2_4").toggleClass("not-touchable touchable");
+          $("#hotspot2_2").toggleClass("not-touchable touchable");
+          $("#startImg").toggleClass("touchable not-touchable");
+          }
+          sp.setAttribute("visible", true);
+          document.querySelector("#startImg").setAttribute('visible', false);
+          ht.innerHTML = "Find President Kekkonen, history depends on it!";
+          document.getElementById("item1").style.display = "block";
+          bg.play();
+        });
+       
+
+        mBut.addEventListener('mousedown', function (e) {
+            if(vib){
+            /*window.navigator.vibrate(50);*/
+            } 
+            timeB += 20;
+            BalanceMeter();
+        });
+        
+
+mc.on("swipeleft swiperight", function(ev) {
+    if(danceScene){
+     if(vib){
+            window.navigator.vibrate(50);
+            } 
+            timeB += 20;
+            BalanceMeter();
+    }
+});
+
+    
+        function BalanceMeter() {
+        
+          if(timeB >= 100){
+          timeB = 100
+        }
+          var elem = meterBar;
+          var height = timeB;
+        elem.style.height = height +"%";
+        }
+        
+        function meterTimer() {
+          face1 = true;
+          face2 = false;
+          face3 = false;
+          danceTime = 12;
+          dTime = setInterval(function() {
+          if(danceTime == 10){
+          btext.innerHTML = "Maybe you can help<br>me with something..";
+          sbubble.style.display = "block";
+          } else if(danceTime == 8){
+          btext.innerHTML = "You want to hear a secret?";
+          sbubble.style.display = "block";
+          }  else if(danceTime == 5){
+          btext.innerHTML = "I just can’t stop thinking about<br>the President’s bodyguard";
+          sbubble.style.display = "block";
+          }  else if(danceTime == 3){
+          btext.innerHTML = "If only I could take<br>a moment with him";
+          sbubble.style.display = "block";
+          } else {
+            sbubble.style.display = "none";
+          }
+          danceTime--;
+          ModText = textArea.slice(0, -1);
+          textArea = ModText
+          rm.innerHTML = textArea;
+          if(danceTime == 0){
+            clearInterval(dTime); 
+            clearInterval(takeTime); 
+            danceFeedback();
+          }
+          }, 5000);
+          takeTime = setInterval(function(){
+         /* ModText = textArea.slice(0, -1);
+          textArea = ModText
+          rm.innerHTML = textArea;*/
+          //console.log(danceTime);
+          if(timeB > 90 && !face2){
+          meterBar.style.backgroundColor = "#e20000";
+          //q2.setAttribute("visible", true);
+          viba = setTimeout(function(){
+          if(vib){
+            window.navigator.vibrate(1000);
+            }
+          }, 1000);
+          q2.emit("opa");
+          q1.emit("apo");
+          face2 = true;
+          face1 = false;
+          fail = setTimeout(function(){ /*clearInterval(dTime); clearInterval(takeTime);*/ danceFeedback(); }, 3000);
+        } else if(timeB < 23 && !face3){
+          meterBar.style.backgroundColor = "#0080ff";
+          //q3.setAttribute("visible", true);
+          viba = setTimeout(function(){
+          if(vib){
+            window.navigator.vibrate(1000);
+            }
+          }, 1000);
+          q3.emit("opa");
+          q1.emit("apo");
+          face3 = true;
+          face1 = false;
+          fail = setTimeout(function(){ /*clearInterval(dTime); clearInterval(takeTime);*/ danceFeedback(); }, 5000);
+        } if((timeB < 80 && timeB > 23) && !face1){
+          meterBar.style.backgroundColor = "#00ff00";
+          if(face2){
+          clearTimeout(fail);
+          clearTimeout(viba);
+          q2.emit("apo");
+          face2 = false;
+          } else if(face3){
+          clearTimeout(fail);
+          clearTimeout(viba);
+          q3.emit("apo");
+          face3 = false;
+          }
+          q1.emit("opa");
+          face1 = true;
+          //q2.setAttribute("visible", false),
+          //q3.setAttribute("visible", false);
+        }
+            //console.log(timeB);
+            BalanceMeter(); 
+          if(timeB > 0){
+            timeB -= 2;   ///Why this double next time?????????!!?!?!?!?!?!?!?!?!?!
+          }
+          //} else{
+            //clearInterval(takeTime);
+          //}
+        }, 100);
+        }
+
+        function danceFeedback() {
+          ht.style.display = "block";
+          rm.style.display ="none";
+          if(fail){
+          clearTimeout(fail);
+          }
+          bg2.pause();
+          bg.play();
+          happyf.pause();
+          da.emit("pos2");
+          da.emit("rot2");
+          clearInterval(takeTime);
+          clearInterval(dTime);
+          if(face2){
+           //fail video
+           //queenLayer.setAttribute("src", "#dancerVideo2");
+           ht.innerHTML = "You clearly don’t know how to please a woman!<br>Try again.";
+           queenVid2.play();
+           queenLayer2.setAttribute("visible", true);
+           sp.setAttribute("visible", false);
+           btext.innerHTML = "Ouch! My feet!<br>You are an awful dancer!!!"
+           sbubble.style.display = "block";
+           queenVid2.addEventListener('ended', function(e) {
+          queenLayer2.setAttribute("visible", false);
+          hs2_4.setAttribute('visible', true),
+          layer2_2.setAttribute('visible', true),
+          hs2_2.setAttribute('visible', true);
+          $("#hotspot2_4").toggleClass("not-touchable touchable");
+          $("#hotspot2_2").toggleClass("not-touchable touchable");
+          sbubble.style.display = "none";
+          sp.setAttribute("visible", true);
+          ht.innerHTML = "Find President Kekkonen, history depends on it!";
+    });
+          } else if(face3){ 
+           // fail video
+           //queenLayer.setAttribute("src", "#dancerVideo2");
+           queenVid2.play();
+           queenLayer2.setAttribute("visible", true);
+           sp.setAttribute("visible", false);
+           ht.innerHTML = "You clearly don’t know how to please a woman!<br>Try again.";
+           btext.innerHTML = "You're such a bore!"
+           sbubble.style.display = "block";
+           queenVid2.addEventListener('ended', function(e) {
+          queenLayer2.setAttribute("visible", false);
+          hs2_4.setAttribute('visible', true),
+          layer2_2.setAttribute('visible', true),
+          hs2_2.setAttribute('visible', true);
+          $("#hotspot2_4").toggleClass("not-touchable touchable");
+          $("#hotspot2_2").toggleClass("not-touchable touchable");
+          sbubble.style.display = "none";
+          sp.setAttribute("visible", true);
+          ht.innerHTML = "Find President Kekkonen, history depends on it!";
+    });
+          } else{
+           // success video
+           key2_4 = true;
+           queenVid3.play();
+           queenLayer3.setAttribute("visible", true);
+           sp.setAttribute("visible", false);
+          ht.innerHTML = "Well done!<br>Looks like you got a love note!";
+          btext.innerHTML = "Here, give this to security<br>and tell him to meet<br>me in the sauna!"
+          sbubble.style.display = "block";
+          queenVid3.addEventListener('ended', function(e) {
+            document.getElementById("item1").setAttribute("src", "content/loveOn.png");
+          queenLayer3.setAttribute("visible", false);
+          hs2_4.setAttribute('visible', true),
+          layer2_2.setAttribute('visible', true),
+          //hs2_2.setAttribute('visible', true);
+          $("#hotspot2_4").toggleClass("not-touchable touchable");
+          //$("#hotspot2_2").toggleClass("not-touchable touchable");
+          sbubble.style.display = "none";
+          sp.setAttribute("visible", true);
+          ht.innerHTML = "Find President Kekkonen, history depends on it!";
+    });
+          }
+          danceScene = false;
+          q1.setAttribute("visible", false),
+          q2.setAttribute("visible", false),
+          q3.setAttribute("visible", false),
+          mBut.setAttribute("visible", false);
+          q1.setAttribute("opacity", 1);
+          q2.setAttribute("opacity", 0);
+          q3.setAttribute("opacity", 0);
+          $("#mechButton").toggleClass("touchable not-touchable");
+          document.getElementById("myProgress").style.display = "none";
+          //time bar off.
+          sp.setAttribute('src', '#stillView');
+        }
+
+        //Back
+        /*
+    nx.addEventListener('mousedown', function (e) {
+      switch (a) {
+  case 0:
+    sp.setAttribute('src', '#stillView3');
+    rm.innerHTML = "Stairs with guard";
+    a = 1;
+    break;
+  case 1:
+    sp.setAttribute('src', '#stillView4');
+    rm.innerHTML = "Presidential bedroom";
+    a = 2;
+    break;
+  case 2:
+    sp.setAttribute('src', '#stillView');
+    rm.innerHTML = "Cocktail party";
+    a = 0;
+    break;
+}
+    });
+    */
+
+    //Dancing Queen 2_2
+    hs2_2.addEventListener('mousedown', function (e) {
+      btext.innerHTML = "Would you be a gentlemen<br>and dance with me?"
+      sbubble.style.display = "block";
+      happyf.load();
+      sp.setAttribute('src', '#stillView2');
+      //rm.innerHTML = "Dancing action";
+      hs2_4.setAttribute('visible', false);
+      layer2_2.setAttribute('visible', false),
+      hs2_2.setAttribute('visible', false);
+      queenVid.play();
+      queenLayer.setAttribute("visible", true);
+      sp.setAttribute("visible", false);
+      $("#hotspot2_4").toggleClass("touchable not-touchable");
+      $("#hotspot2_2").toggleClass("touchable not-touchable");
+      ht.innerHTML = "Maybe the lady can help - see what she wants.";
+      document.querySelector("#dancerVideo").addEventListener('ended', function(e) {
+          danceScene = true;
+          if(mBut.matches('.not-touchable')) { 
+            sbubble.style.display = "none";
+            $("#mechButton").toggleClass("not-touchable touchable");
+            ht.style.display = "none";
+          rm.style.display ="block";
+          sp.setAttribute("visible", true),
+          q1.setAttribute("visible", true),
+          q2.setAttribute("visible", true),
+          q3.setAttribute("visible", true);
+          queenLayer.setAttribute("visible", false);
+          mBut.setAttribute("visible", true);
+          document.getElementById("myProgress").style.display = "block";
+          timeB = 75;
+          meterTimer();
+          da.emit("rot");
+          da.emit("pos");
+          bg2.play();
+          bg.pause();
+          happyf.volume = 0.5;
+          happyf.play();
+          }
+    });
+    });
+
+    function queenFail() {
+      ht.style.display = "block";
+      rm.style.display ="none";
+      clearTimeout(fail);
+      clearInterval(takeTime);
+      if(face2) {
+        btext.innerHTML = "You dance too fast<br>Im too tired.."
+        sbubble.style.display = "block";
+        ht.innerHTML = "You should learn to dance..";
+      } else if(face3){
+        btext.innerHTML = "You are awful dancer!!!"
+        sbubble.style.display = "block";
+        ht.innerHTML = "You should learn to dance..";
+      } else{
+        btext.innerHTML = "You are true gentlemen!<br>Would you give this letter<br>to guard on stairs?"
+        sbubble.style.display = "block";
+        ht.innerHTML = "Well done you get some love letter from lady!!";
+      }
+    }
+
+    //Upstairs
+    hs2_4.addEventListener('mousedown', function (e) {
+          hs2_4.setAttribute('visible', false),
+          hs2_4_1.setAttribute('visible', true),
+          layer2_2.setAttribute('visible', false),
+          layer2_4_1.setAttribute('visible', true);
+          $("#hotspot2_4").toggleClass("touchable not-touchable");
+          if(hs2_2.matches('.touchable')) { 
+          $("#hotspot2_2").toggleClass("touchable not-touchable");
+          hs2_2.setAttribute('visible', false);
+          }
+          $("#hotspot2_4_1").toggleClass("not-touchable touchable");
+          sp.setAttribute('src', '#stillView3');
+          ht.innerHTML = "Get rid of the guard!";
+          bg.volume = 0.4;
+          //rm.innerHTML = "Stairs with guard";
+          a = 1;
+      });
+
+      //Guard 2_4_1
+    hs2_4_1.addEventListener('mousedown', function (e) {
+          $("#hotspot2_4_1").toggleClass("touchable not-touchable");
+          hs2_4_1.setAttribute('visible', false);
+          layer2_4_1.setAttribute('visible', false);
+          if(!key2_4){
+          document.querySelector("#guardVideo").play();
+          document.querySelector("#guardCloseUp").setAttribute("visible", true);
+          btext.innerHTML = "The kitchen’s downstairs,<br>but I can offer you<br>a knuckle sandwich!";
+          sbubble.style.display = "block";
+          sp.setAttribute("visible", false);
+          sp.setAttribute('src', '#stillView');
+          document.querySelector("#guardVideo").addEventListener('ended', function(e) {
+          if(hs2_2.matches('.not-touchable')) { 
+          sbubble.style.display = "none";
+          document.querySelector("#guardCloseUp").setAttribute("visible", false);
+          hs2_4.setAttribute('visible', true),
+          layer2_2.setAttribute('visible', true),
+          hs2_2.setAttribute('visible', true);
+          sp.setAttribute("visible", true);
+          ht.innerHTML = "Find President Kekkonen, history depends on it!";
+          $("#hotspot2_4").toggleClass("not-touchable touchable");
+          $("#hotspot2_2").toggleClass("not-touchable touchable");
+          bg.volume = 1;
+          }
+        });
+  } else if(key2_4){
+          document.getElementById("item1").style.display = "none";
+          document.querySelector("#guardVideo2").play();
+          document.querySelector("#guardCloseUp2").setAttribute("visible", true);
+          sp.setAttribute("visible", false);
+          btext.innerHTML = "Hmm, seems suspicious<br>- but I’m a man and I don’t-<br>say no to a woman’s advances."
+          sbubble.style.display = "block";
+          sp.setAttribute('src', '#stillView4');
+          a = 2;
+          document.querySelector("#guardVideo2").addEventListener('ended', function(e) {
+          document.querySelector("#guardCloseUp2").setAttribute("visible", false);
+          sbubble.style.display = "none";
+          ht.innerHTML = "Swap the document! This should be like stealing candy from a baby!";
+          sp.setAttribute("visible", true);
+          if(document.querySelector("#hotspot3_1").matches('.not-touchable')) { 
+          document.querySelector("#uFar").setAttribute("visible", true);
+          document.querySelector("#hotspot3_1").setAttribute("visible", true);
+          document.querySelector("#zzz").setAttribute("visible", true);
+          document.querySelector("#zzz").emit("zpos");
+          $("#hotspot3_1").toggleClass("not-touchable touchable");
+          slp.play();
+          bg.volume = 0.2;
+          }
+        });
+  } 
+        /*  setTimeout(function(){ 
+          hs2_4.setAttribute('visible', true),
+          layer2_2.setAttribute('visible', true),
+          layer2_4_1.setAttribute('visible', false),
+          hs2_2.setAttribute('visible', true);
+          sp.setAttribute('src', '#stillView');
+          rm.innerHTML = "Cocktail party";
+          $("#hotspot2_4").toggleClass("not-touchable touchable");
+          $("#hotspot2_2").toggleClass("not-touchable touchable");  //paty sounds!!?
+        }, 3000);*/
+      });
+
+      document.querySelector("#hotspot3_1").addEventListener('mousedown', function (e) {
+        ht.innerHTML = "To be continued...";
+          sp.setAttribute("visible", false);
+          if(document.querySelector("#hotspot3_1").matches('.touchable')) { 
+          document.querySelector("#uFar").setAttribute("visible", false);
+          document.querySelector("#hotspot3_1").setAttribute("visible", false);
+          document.querySelector("#zzz").setAttribute("visible", false);
+          document.querySelector("#zzz").emit("zsop");
+          $("#hotspot3_1").toggleClass("touchable not-touchable");
+          slp.pause();
+          bg.pause();
+          document.querySelector("#endImg").setAttribute("visible", true);
+          $("#endImg").toggleClass("not-touchable touchable");
+          }
+      });
+
+      document.querySelector("#endImg").addEventListener('mousedown', function (e) {
+        location.reload();
+      });
+    </script>
+
+</body>
