@@ -1,3 +1,6 @@
+//RADICAL RABBIT 2020 //
+// All rights reserved //
+
 view1 = document.querySelector("#stillView");
         view2 = document.querySelector("#stillView2");
         view3 = document.querySelector("#stillView3");
